@@ -1,0 +1,117 @@
+Bootstrap: docker
+
+From: python:3.14.0b4-slim-bookworm
+
+Stage: dependencies
+
+%labels
+
+PLACEHOLDER
+
+%post
+
+su - root
+
+# root permissions granted
+
+apt-get update \
+    && apt-get install -y build-essential \
+    && apt-get install -y wget \
+    && apt-get install -y git bzip cmake libboost-all-dev parallel zlib1g-dev \
+    && apt-get install -y clean unzip git zlib \
+
+apt install maq
+
+apt-get install -y bioperl
+
+apt-get install -y git-all
+
+apt install -y zlib1g-dev
+
+cpan -I App::cpanminus
+
+apt-get install -y libxml2-dev libxslt-dev
+
+mkdir /Home
+
+cd /Home
+
+git clone https://github.com/jmsong2/GenomeSyn
+
+chmod -R 777 GenomeSyn
+
+cd GenomeSyn
+
+### recycled wrapper script ###
+
+current_path=$( pwd )
+
+
+### src command used ! ###
+
+###
+
+
+wget https://github.com/mummer4/mummer/releases/download/v4.0.0beta2/mummer-4.0.0beta2.tar.gz
+
+tar -xvzf mummer-4.0.0beta2.tar.gz
+
+cd mummer-4.0.0beta2
+
+./configure --prefix=`pwd`
+
+make
+
+cd $current_path
+
+# Add MUMmer tools to your PATH
+##2.SVG of Perl module
+cd $current_path
+
+cpanm SVG
+
+### CPANM takes care of this step already
+
+### tar -zxvf SVG-2.85.tar.gz
+
+##3.BioPerl of Perl module
+cd $current_path
+
+cpanm Bio::SeqIO
+
+# Add Perl module to your PATH
+##4.Python and python module
+cd $current_path
+tar -zxvf Python-3.9.4.tgz -C ./
+cd ./Python-3.9.4
+
+### source command used !! ###
+
+./configure --prefix=$current_path/Python-3.9.4/localpython
+
+###
+
+make
+make install
+#Add Python to your PATH
+
+
+
+python_path="export PATH=$current_path/Python-3.9.4/python:\$PATH"
+
+##4.1 svglib of python module
+cd $current_path
+
+pip install svglib==1.1.0
+
+#Add GenomeSyn to your PATH
+
+### export modules from wrapper ###
+
+cd $current_path
+
+%environment
+
+ PERL5LIB=/Home/GenomeSyn/SVG-2.85/lib:/Home/GenomeSyn/BioPerl-1.7.8/lib:$PERL5LIB
+ PATH=/Home/GenomeSyn/bin:$PATH
+ PATH=/Home/GenomeSyn/mummer-4.0.0beta2:$PATH
